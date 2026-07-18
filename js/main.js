@@ -126,18 +126,7 @@ window.addEventListener('scroll', onRevealScroll, { passive: true });
 window.addEventListener('resize', onRevealScroll, { passive: true });
 setTimeout(revealVisible, 700);
 
-/* --- Video slots: fade in when a real file exists, else keep CSS scene --- */
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-document.querySelectorAll('.hero-media video').forEach((video) => {
-  const wrap = video.closest('.hero-media');
-  video.addEventListener('loadeddata', () => {
-    wrap.classList.add('has-video');
-    if (!reduceMotion) video.play().catch(() => {});
-  });
-  video.addEventListener('error', () => wrap.classList.remove('has-video'), true);
-  const src = video.querySelector('source');
-  if (src) src.addEventListener('error', () => wrap.classList.remove('has-video'));
-});
 
 /* --- Hero film reel: the commercials run back-to-back in an endless loop,
    crossfading at low opacity behind the centered copy. The second film only

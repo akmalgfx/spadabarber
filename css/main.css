@@ -261,19 +261,6 @@ footer .wordmark img { height: 34px; }
   padding: 7rem var(--gutter) 4rem;
   isolation: isolate;
 }
-.hero-media {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-}
-.hero-media video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 1.2s var(--ease-out);
-}
-.hero-media.has-video video { opacity: 1; }
 
 /* Back-to-back commercial playlist: two stacked films crossfading at low
    opacity so the centered copy stays the loudest thing in the frame. */
@@ -599,17 +586,13 @@ a:hover .stage img.product, .showcase-stage:hover .stage img.product { transform
 /* ---------- Film band ---------- */
 .film-band {
   position: relative;
-  min-height: 72vh;
   display: grid;
   place-items: center;
-  text-align: center;
   overflow: clip;
   isolation: isolate;
   padding: var(--section) var(--gutter);
   border-block: 1px solid var(--steel-hair);
 }
-.film-band .hero-media video { opacity: 0; }
-.film-band .hero-media.has-video video { opacity: 0.55; }
 .film-scrim {
   position: absolute;
   inset: 0;
@@ -618,22 +601,35 @@ a:hover .stage img.product, .showcase-stage:hover .stage img.product { transform
     radial-gradient(ellipse 70% 90% at 50% 100%, oklch(30% 0.05 240 / 0.6), transparent 70%),
     linear-gradient(to bottom, var(--night), transparent 25%, transparent 75%, var(--night));
 }
-.film-band blockquote {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: clamp(1.8rem, 5.5vw, 3.8rem);
-  line-height: 1.15;
-  max-width: 20ch;
+.film-player {
+  position: relative;
+  width: 100%;
+  max-width: 68rem;
+  aspect-ratio: 2206 / 946;
+  border: 1px solid var(--steel-hair);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 34px 90px oklch(4% 0.01 245 / 0.65);
 }
-.film-band .attribution {
-  margin-top: 1.4rem;
-  font-family: var(--font-cond);
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  font-size: 0.95rem;
-  color: var(--fog-dim);
+.film-player::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 2px;
+  z-index: 2;
+  background: linear-gradient(to right, transparent, var(--led), transparent);
+  opacity: 0.6;
+  box-shadow: 0 0 18px var(--led-glow);
+  pointer-events: none;
+}
+.film-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* ---------- Accessories rack ---------- */
