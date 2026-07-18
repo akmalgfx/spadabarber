@@ -70,16 +70,26 @@ window.addEventListener('scroll', onScroll, { passive: true });
 
 const toggle = document.querySelector('.menu-toggle');
 if (toggle) {
-  toggle.addEventListener('click', () => {
+  const closeMenu = () => {
+    document.body.classList.remove('menu-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  };
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
     const open = document.body.classList.toggle('menu-open');
     toggle.setAttribute('aria-expanded', open);
   });
-  document.querySelectorAll('.nav-links a').forEach((a) =>
-    a.addEventListener('click', () => {
-      document.body.classList.remove('menu-open');
-      toggle.setAttribute('aria-expanded', 'false');
-    })
-  );
+  document.querySelectorAll('.nav-links a').forEach((a) => a.addEventListener('click', closeMenu));
+  // Dropdown UX: tap anywhere off the menu, or scroll, closes it.
+  document.addEventListener('click', (e) => {
+    if (document.body.classList.contains('menu-open') && !e.target.closest('.nav')) closeMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+  window.addEventListener('scroll', () => {
+    if (document.body.classList.contains('menu-open')) closeMenu();
+  }, { passive: true });
 }
 
 /* --- Scroll reveals.
