@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /01.my assets/
+
+Sitemap: https://www.spadabarber.com/sitemap.xml

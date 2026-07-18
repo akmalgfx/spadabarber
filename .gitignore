@@ -1,0 +1,15 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+
+# Local Claude Code settings (keep launch.json for the dev preview)
+.claude/settings.local.json
+
+# Source design assets — kept local only.
+# Raw video masters exceed GitHub's file-size limits; the web-optimized
+# videos the site actually uses live in assets/videos/ and ARE committed.
+01.my assets/
+
+# Dependencies (none today, but future-proofing)
+node_modules/
