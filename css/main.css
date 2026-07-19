@@ -327,6 +327,12 @@ footer .wordmark img { height: 34px; }
   position: absolute;
   inset: 0;
   z-index: -2;
+  /* Poster is the always-on hero base: paints instantly and stays put when the
+     heavy commercial can't autoplay (mobile data, Low Power Mode, data-saver).
+     rgba overlay (not oklch) so the fallback holds in every browser. */
+  background:
+    linear-gradient(rgba(10, 15, 21, 0.6), rgba(10, 15, 21, 0.6)),
+    center / cover no-repeat url("../assets/images/film-poster.jpg");
 }
 .hero-film video {
   position: absolute;

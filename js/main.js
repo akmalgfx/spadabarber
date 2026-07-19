@@ -138,38 +138,47 @@ setTimeout(revealVisible, 700);
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* --- Hero film reel: the commercials run back-to-back in an endless loop,
-   crossfading at low opacity behind the centered copy. The second film only
-   starts downloading once the first is playing. --- */
+/* --- Hero film reel. The poster image (CSS background on .hero-film) is the
+   always-on base, so the hero is never blank — it paints instantly even on a
+   phone. The commercials crossfade in over it only when the device can play
+   them; reduced-motion and data-saver / 2G links keep the poster and skip the
+   heavy download entirely. Films run back-to-back, and the next one is fetched
+   only once the current has ended. --- */
 const filmWrap = document.querySelector('.hero-film');
 if (filmWrap) {
   const films = [...filmWrap.querySelectorAll('video')];
-  let idx = 0;
+  const conn = navigator.connection || {};
+  const slowLink = conn.saveData === true || /(^|-)2g$/.test(conn.effectiveType || '');
 
+  let idx = 0;
   films.forEach((v) =>
     v.addEventListener('ended', () => {
       v.classList.remove('playing');
       idx = (idx + 1) % films.length;
       const next = films[idx];
+      if (next.preload === 'none') {
+        next.preload = 'auto';
+        next.load();
+      }
       next.currentTime = 0;
       next.classList.add('playing');
       next.play().catch(() => {});
     })
   );
 
-  const start = () => {
-    films[0].classList.add('playing');
-    if (reduceMotion) return;
-    films[0].play().catch(() => {});
-    films.slice(1).forEach((v) => {
-      if (v.preload === 'none') {
-        v.preload = 'auto';
-        v.load();
-      }
-    });
-  };
-  if (films[0].readyState >= 2) start();
-  else films[0].addEventListener('canplay', start, { once: true });
+  if (!reduceMotion && !slowLink) {
+    const first = films[0];
+    const play = () => {
+      first.classList.add('playing');
+      first.play().catch(() => {});
+    };
+    first.preload = 'auto';
+    if (first.readyState >= 2) play();
+    else {
+      first.addEventListener('canplay', play, { once: true });
+      first.load();
+    }
+  }
 }
 
 /* --- PDP gallery scroll buttons --- */
