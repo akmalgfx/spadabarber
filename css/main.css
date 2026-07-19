@@ -4,6 +4,7 @@
    ============================================================ */
 
 :root {
+  color-scheme: dark;
   --night: oklch(15% 0.018 245);
   --night-2: oklch(19% 0.022 243);
   --steel: oklch(27% 0.03 240);
@@ -60,6 +61,10 @@ body {
 img, video { display: block; max-width: 100%; }
 a { color: inherit; }
 button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+a, button, .btn, .door, .rack-item, .strip-nav, .menu-toggle, summary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
 ::selection { background: var(--led-deep); color: var(--chrome); }
 
 h1, h2, h3 { text-wrap: balance; }
@@ -79,6 +84,29 @@ p { text-wrap: pretty; }
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* In-page anchors sit under the fixed nav — reserve its height on jump. */
+:target, [id="torq"], [id="pro"], [id="film"] { scroll-margin-top: 5rem; }
+
+/* Skip link — first focusable element, off-screen until focused. */
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -60px;
+  z-index: 300;
+  padding: 0.65rem 1.1rem;
+  font-family: var(--font-cond);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  color: var(--chrome);
+  background: var(--night-2);
+  border: 1px solid var(--led);
+  text-decoration: none;
+  transition: top 0.25s var(--ease-out);
+}
+.skip-link:focus { top: 0.75rem; }
 
 /* ---------- Type voices ---------- */
 .display {
@@ -142,7 +170,7 @@ p { text-wrap: pretty; }
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.9rem var(--gutter);
+  padding: 0.9rem calc(var(--gutter) + env(safe-area-inset-right)) 0.9rem calc(var(--gutter) + env(safe-area-inset-left));
   transition: background 0.4s var(--ease-out), border-color 0.4s var(--ease-out);
   border-bottom: 1px solid transparent;
 }
@@ -216,6 +244,7 @@ footer .wordmark img { height: 34px; }
     backdrop-filter: blur(24px) saturate(1.4);
     border-bottom: 1px solid var(--steel-hair);
     box-shadow: 0 26px 50px oklch(3% 0.01 245 / 0.55);
+    overscroll-behavior: contain;
     opacity: 0;
     transform: translateY(-12px);
     pointer-events: none;
@@ -288,7 +317,7 @@ footer .wordmark img { height: 34px; }
   place-items: center;
   text-align: center;
   overflow: clip;
-  padding: 7rem var(--gutter) 4rem;
+  padding: 7rem calc(var(--gutter) + env(safe-area-inset-right)) calc(4rem + env(safe-area-inset-bottom)) calc(var(--gutter) + env(safe-area-inset-left));
   isolation: isolate;
 }
 
@@ -409,7 +438,8 @@ footer .wordmark img { height: 34px; }
   border-radius: 50%;
   background: radial-gradient(ellipse, oklch(4% 0.01 245 / 0.75), transparent 72%);
   filter: blur(10px);
-  transition: width 0.6s var(--ease-out), opacity 0.6s var(--ease-out);
+  transform-origin: center;
+  transition: transform 0.6s var(--ease-out), opacity 0.6s var(--ease-out);
 }
 .vitrine-index {
   position: absolute;
@@ -452,7 +482,7 @@ footer .wordmark img { height: 34px; }
 .showcase-stage { text-decoration: none; display: block; }
 .showcase-stage:hover .vitrine { border-color: oklch(48% 0.07 240 / 0.65); }
 .showcase-stage:hover .vitrine::before { opacity: 1; }
-.showcase-stage:hover .vitrine::after { width: 60%; opacity: 0.9; }
+.showcase-stage:hover .vitrine::after { transform: scaleX(1.11); opacity: 0.9; }
 .showcase-stage:hover .vitrine .product { transform: translateY(-10px); }
 
 /* ---------- Spotlight product staging (product-detail hero) ---------- */
@@ -565,6 +595,7 @@ a:hover .stage img.product, .showcase-stage:hover .stage img.product { transform
   font-size: 1.18rem;
   letter-spacing: 0.05em;
   color: var(--chrome);
+  font-variant-numeric: tabular-nums;
 }
 .showcase-ctas { display: flex; flex-wrap: wrap; gap: 0.9rem; margin-top: 2rem; }
 
@@ -581,7 +612,7 @@ a:hover .stage img.product, .showcase-stage:hover .stage img.product { transform
 }
 .armory h2 { font-size: clamp(1.9rem, 4.5vw, 3rem); }
 .armory .lede { margin-top: 1rem; }
-.armory-table-wrap { overflow-x: auto; margin-top: 3rem; }
+.armory-table-wrap { overflow-x: auto; overscroll-behavior-x: contain; margin-top: 3rem; }
 .armory table {
   width: 100%;
   min-width: 640px;
@@ -610,7 +641,7 @@ a:hover .stage img.product, .showcase-stage:hover .stage img.product { transform
   text-transform: uppercase;
   color: var(--fog-dim);
 }
-.armory td { font-weight: 500; font-size: 1.12rem; letter-spacing: 0.04em; color: var(--chrome); }
+.armory td { font-weight: 500; font-size: 1.12rem; letter-spacing: 0.04em; color: var(--chrome); font-variant-numeric: tabular-nums; }
 .armory td .sub { display: block; font-size: 0.9rem; color: var(--fog-dim); letter-spacing: 0.08em; }
 
 /* ---------- Film band ---------- */
@@ -688,6 +719,7 @@ a:hover .stage img.product, .showcase-stage:hover .stage img.product { transform
   display: flex;
   gap: 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory;
   margin-top: 2.6rem;
   padding-inline: var(--gutter);
@@ -830,6 +862,7 @@ footer {
   padding: 0;
   width: min(560px, calc(100vw - 2rem));
   margin: auto;
+  overscroll-behavior: contain;
 }
 .buy-dialog::backdrop {
   background: oklch(8% 0.015 245 / 0.75);
@@ -929,6 +962,7 @@ footer {
 }
 .pdp-strip {
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   display: flex;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
