@@ -170,6 +170,7 @@ if (filmWrap) {
     const first = films[0];
     const play = () => {
       first.classList.add('playing');
+      filmWrap.classList.add('film-live'); // fade the poster out as the film comes in
       first.play().catch(() => {});
     };
     first.preload = 'auto';
