@@ -237,3 +237,94 @@ if (dialog) {
     if (e.target === dialog) dialog.close();
   });
 }
+
+/* --- Smooth inertia scroll (desktop mouse/trackpad only).
+   Eases every wheel tick toward a lerped target instead of jumping straight
+   there — the buttery, momentum feel. Deliberately narrow in scope so it
+   never fights the browser:
+   - reduced-motion and touch devices are untouched (mobile's native scroll
+     is already the right feel; this is desktop-only, pointer:fine).
+   - ctrl+wheel (pinch-zoom) and any gesture that's more horizontal than
+     vertical pass straight through to the browser.
+   - anything inside its own scrollable ancestor (the horizontal racks and
+     galleries, the armory table, the open buy dialog, the mobile nav
+     dropdown) is left to native nested scrolling.
+   - every scrollTo call forces behavior:'instant' so it doesn't double up
+     with the global `scroll-behavior: smooth` CSS (that would stack two
+     competing easings and make scrolling laggy/rubbery).
+   - anchor-link jumps and keyboard scrolling (Page Down, arrows, Tab) never
+     touch this — they stay native, immediate, and fully accessible; the
+     scroll listener just resyncs the lerp target afterward so the next
+     wheel tick doesn't jump. */
+if (!reduceMotion && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  const EASE = 0.1;
+  const scroller = document.scrollingElement;
+  let target = scrollY;
+  let current = target;
+  let ticking = false;
+
+  const maxScroll = () => scroller.scrollHeight - innerHeight;
+
+  const nestedScrollAncestor = (el, vertical) => {
+    while (el && el !== document.body && el !== document.documentElement) {
+      if (el.tagName === 'DIALOG') return true;
+      const cs = getComputedStyle(el);
+      if (vertical && el.scrollHeight > el.clientHeight && /(auto|scroll)/.test(cs.overflowY)) return true;
+      if (!vertical && el.scrollWidth > el.clientWidth && /(auto|scroll)/.test(cs.overflowX)) return true;
+      el = el.parentElement;
+    }
+    return false;
+  };
+
+  const normalizeDelta = (e) => {
+    // deltaMode 1 = lines, 2 = pages (mostly Firefox); 0 = pixels (everyone else).
+    if (e.deltaMode === 1) return e.deltaY * 16;
+    if (e.deltaMode === 2) return e.deltaY * innerHeight;
+    return e.deltaY;
+  };
+
+  const raf = () => {
+    current += (target - current) * EASE;
+    if (Math.abs(target - current) < 0.5) {
+      current = target;
+      ticking = false;
+    } else {
+      requestAnimationFrame(raf);
+    }
+    window.scrollTo({ top: current, left: 0, behavior: 'instant' });
+  };
+
+  window.addEventListener(
+    'wheel',
+    (e) => {
+      if (e.ctrlKey) return; // pinch-zoom
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // intentional horizontal scroll
+      if (nestedScrollAncestor(e.target, true)) return; // let nested scrollers handle themselves
+
+      target = Math.min(Math.max(target + normalizeDelta(e), 0), maxScroll());
+      e.preventDefault();
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(raf);
+      }
+    },
+    { passive: false }
+  );
+
+  // Recalibrate after any scroll we didn't drive ourselves (anchor jumps,
+  // keyboard, browser scroll restoration) so the next wheel tick picks up
+  // from the real position instead of an out-of-date target.
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        target = scrollY;
+        current = target;
+      }
+    },
+    { passive: true }
+  );
+  window.addEventListener('resize', () => {
+    target = Math.min(target, maxScroll());
+  });
+}
